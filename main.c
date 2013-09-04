@@ -129,7 +129,6 @@ int main() {
 void interrupt isr(void)
 {
 	static unsigned char debounce = 0;
-	static unsigned char value;
 
 	if (INTCONbits.TMR0IF) { // Timer0 overflow
 		sGPIO.reg = GPIO; // Read state of inputs.
@@ -137,8 +136,7 @@ void interrupt isr(void)
 			case IDLE:
 				break;
 			case DEBOUNCE:
-				value = sGPIO.bits.GP3;
-				if (value == 0) { // Pressed
+				if (sGPIO.bits.GP3 == 0) { // Pressed
 					if (++debounce >= DEBOUNCE_CYCLES) {
 						debounce = 0;
 						TRISIO = 0b00111111; // All input
@@ -151,8 +149,7 @@ void interrupt isr(void)
 				}
 				break;
 			case WAIT:
-				value = sGPIO.bits.GP3;
-				if (value == 0) { // Pressed
+				if (sGPIO.bits.GP3 == 0) { // Pressed
 					// Check every button for a press. If anything has been
 					// pressed, record it and jump to the recording state.
 					// Otherwise, do nothing.
