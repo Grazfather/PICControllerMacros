@@ -157,6 +157,7 @@ void interrupt isr(void)
 					// If any button is pressed
 					if (~((sGPIO.reg & CONTROLLER_BUTTONS_MASK) ^ PRESSED_MASK)) {
 						debounce = 0;
+						index = 0;
 						state = RECORDING;
 					}
 				} else {
