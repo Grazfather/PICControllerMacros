@@ -25,7 +25,8 @@
 // Will we read high or low when a button is pressed?
 #define PRESSED 0
 #define PRESSED_MASK ((unsigned char)0 - PRESSED)
-#define CONTROLLER_BUTTONS_MASK 0b00110111
+#define CONTROLLER_BUTTONS_MASK 0b00100000
+
 
 typedef enum {
 	IDLE,
@@ -84,7 +85,7 @@ int main() {
 
 		// Debug code to see current state
 		// TODO: Add DEBUG macros
-		TRISIO = 0b00001000; // Only GPIO3 is input
+		TRISIO = 0xFF & CONTROLLER_BUTTONS_MASK; // Spare GPIOs for debugging
 		switch (state) {
 			case IDLE:
 				sGPIO.bits.GP0 = 0;
@@ -139,12 +140,12 @@ void interrupt isr(void)
 				if (sGPIO.bits.GP3 == 0) { // Pressed
 					if (++debounce >= DEBOUNCE_CYCLES) {
 						debounce = 0;
-						TRISIO = 0b00111111; // All input
+						TRISIO |= CONTROLLER_BUTTONS_MASK; // All controller buttons as input
 						state = WAIT;
 					}
 				} else {
 					debounce = 0;
-					TRISIO = 0b00111111; // All input
+					TRISIO |= CONTROLLER_BUTTONS_MASK; // All controller buttons as input
 					state = IDLE;
 				}
 				break;
@@ -176,14 +177,14 @@ void interrupt isr(void)
 						if (index >= sizeof(recording)) {
 							// If we record for too long, just stop recording.
 							length = index;
-							TRISIO = 0b00111111; // All input
+							TRISIO |= CONTROLLER_BUTTONS_MASK; // All controller buttons as input
 							state = IDLE;
 						}
 					}
 				} else {
 					// Done recording
 					length = index;
-					TRISIO = 0b00111111; // All input
+					TRISIO |= CONTROLLER_BUTTONS_MASK; // All controller buttons as input
 					state = IDLE;
 					// state = SAVING;
 				}
@@ -195,7 +196,7 @@ void interrupt isr(void)
 					debounce = 0;
 
 					if (index >= length) { // Done playback
-						TRISIO = 0b00111111; // All input
+						TRISIO |= CONTROLLER_BUTTONS_MASK; // All controller buttons as input
 						state = IDLE;
 					}
 					// If the GPIO is supposed to be PRESSED, set it to output,
