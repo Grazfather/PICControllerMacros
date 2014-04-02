@@ -75,6 +75,7 @@ int main() {
 	// 1:4 / 1000000/256/4 = 976.56 interrupts/sec
 	OPTION_REGbits.PS = 0b001;
 	INTCONbits.TMR0IE = 1; // Enable
+	ANSEL = 0; // Disable all analog pins so we can use them as GPIOs
 
 	// Enable interrupts
 	ei();
@@ -160,6 +161,8 @@ void interrupt isr(void)
 						debounce = 0;
 						index = 0;
 						state = RECORDING;
+						// Record it.
+						recording[index++] = sGPIO.reg;
 					}
 				} else {
 					debounce = 0;
