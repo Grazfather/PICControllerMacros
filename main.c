@@ -51,8 +51,8 @@ volatile shadowGPIO_t sGPIO;
 /*
  * Timer0: 8 bit. pre scaler
  *	4MHz/4 clocks/tick = 1MHz increments
- *	1000000/256 = 3906.25 interrupts/second.
- *	Prescale down to 1/4 -> 976.56 per second
+ *	1000000 ticks/second / 256 ticks/interrupt= 3906.25 interrupts/second.
+ *	Prescale down to 1/4 -> 976.56 interrupts/second
  *	If debounce in 20ms ~= 20 interrupts
  *	GIE set to enable interrupts
  *	T0IE flag set to enable
@@ -72,8 +72,7 @@ int main() {
 	// Set up timer0
 	OPTION_REGbits.T0CS = 0; // Base on oscillator/4
 	OPTION_REGbits.PSA = 0; // Use prescaler
-	// 1:4 / 1000000/256/4 = 976.56 interrupts/sec
-	OPTION_REGbits.PS = 0b001;
+	OPTION_REGbits.PS = 0b001; // Prescaler: 1:4
 	INTCONbits.TMR0IE = 1; // Enable
 	ANSEL = 0; // Disable all analog pins so we can use them as GPIOs
 
