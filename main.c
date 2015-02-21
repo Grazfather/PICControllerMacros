@@ -200,14 +200,15 @@ void interrupt isr(void)
 					if (index >= length) { // Done playback
 						TRISIO = CONTROLLER_BUTTONS;
 						state = IDLE;
+					} else {
+						// If the GPIO is supposed to be PRESSED, set it to output,
+						// Otherwise set the pin as input/high impedence.
+						TRISIO = recording[index] & CONTROLLER_BUTTONS;
+						// Set the GPIOs that were pressed to PRESSED.
+						sGPIO.reg = recording[index] & CONTROLLER_BUTTONS;
+						GPIO = sGPIO.reg;
+						index++;
 					}
-					// If the GPIO is supposed to be PRESSED, set it to output,
-					// Otherwise set the pin as input/high impedence.
-					TRISIO = recording[index] ^ PRESSED_MASK;
-					// Set the GPIOs that were pressed to PRESSED.
-					sGPIO.reg = recording[index] & CONTROLLER_BUTTONS;
-					GPIO = sGPIO.reg;
-					index++;
 				}
 				break;
 			default:
