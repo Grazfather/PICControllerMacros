@@ -65,6 +65,9 @@ int main() {
 	sGPIO.reg = 0b00000000;
 	GPIO = sGPIO.reg; // All GPIOs off
 	TRISIO = 0b00111111; // All buttons are inputs
+	OPTION_REGbits.nGPPU = 0; // Enable weak pullups
+	WPU = 0b00111111; // Weak pullups on all GPIOs
+
 	IOCbits.IOC3 = 1; // Interrupt on GPIO3 changing.
 
 	state = IDLE;
