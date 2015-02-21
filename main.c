@@ -25,8 +25,8 @@
 // Will we read high or low when a button is pressed?
 #define PRESSED 0
 #define PRESSED_MASK ((unsigned char)0 - PRESSED)
-#define CONTROLLER_BUTTONS_MASK 0b00100000
 
+#define CONTROLLER_BUTTONS 0b00100000
 
 typedef enum {
 	IDLE,
@@ -79,14 +79,13 @@ int main() {
 
 	// Enable interrupts
 	ei();
-
+	TRISIO = CONTROLLER_BUTTONS; // Spare GPIOs for debugging
 	while(1)
 	{
 		// TODO: Allow uC to sleep
 
 		// Debug code to see current state
 		// TODO: Add DEBUG macros
-		TRISIO = 0xFF & CONTROLLER_BUTTONS_MASK; // Spare GPIOs for debugging
 		switch (state) {
 			case IDLE:
 				sGPIO.bits.GP0 = 0;
@@ -141,12 +140,12 @@ void interrupt isr(void)
 				if (sGPIO.bits.GP3 == 0) { // Pressed
 					if (++debounce >= DEBOUNCE_CYCLES) {
 						debounce = 0;
-						TRISIO |= CONTROLLER_BUTTONS_MASK; // All controller buttons as input
+						TRISIO = CONTROLLER_BUTTONS;
 						state = WAIT;
 					}
 				} else {
 					debounce = 0;
-					TRISIO |= CONTROLLER_BUTTONS_MASK; // All controller buttons as input
+					TRISIO = CONTROLLER_BUTTONS;
 					state = IDLE;
 				}
 				break;
@@ -157,7 +156,7 @@ void interrupt isr(void)
 					// Otherwise, do nothing.
 
 					// If any button is pressed
-					if (~(sGPIO.reg ^ PRESSED_MASK) & CONTROLLER_BUTTONS_MASK) {
+					if (~(sGPIO.reg ^ PRESSED_MASK) & CONTROLLER_BUTTONS) {
 						debounce = 0;
 						index = 0;
 						state = RECORDING;
@@ -180,14 +179,14 @@ void interrupt isr(void)
 						if (index >= sizeof(recording)) {
 							// If we record for too long, just stop recording.
 							length = index;
-							TRISIO |= CONTROLLER_BUTTONS_MASK; // All controller buttons as input
+							TRISIO = CONTROLLER_BUTTONS;
 							state = IDLE;
 						}
 					}
 				} else {
 					// Done recording
 					length = index;
-					TRISIO |= CONTROLLER_BUTTONS_MASK; // All controller buttons as input
+					TRISIO = CONTROLLER_BUTTONS;
 					state = IDLE;
 					// state = SAVING;
 				}
@@ -199,14 +198,14 @@ void interrupt isr(void)
 					debounce = 0;
 
 					if (index >= length) { // Done playback
-						TRISIO |= CONTROLLER_BUTTONS_MASK; // All controller buttons as input
+						TRISIO = CONTROLLER_BUTTONS;
 						state = IDLE;
 					}
 					// If the GPIO is supposed to be PRESSED, set it to output,
 					// Otherwise set the pin as input/high impedence.
 					TRISIO = recording[index] ^ PRESSED_MASK;
 					// Set the GPIOs that were pressed to PRESSED.
-					sGPIO.reg = recording[index] & CONTROLLER_BUTTONS_MASK;
+					sGPIO.reg = recording[index] & CONTROLLER_BUTTONS;
 					GPIO = sGPIO.reg;
 					index++;
 				}
