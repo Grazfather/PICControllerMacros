@@ -134,7 +134,7 @@ void interrupt isr(void)
 				break;
 			case DEBOUNCE:
 				sGPIO.reg = GPIO; // Read state of inputs.
-				if (sGPIO.bits.GP3 == 0) { // Pressed
+				if (sGPIO.bits.GP3 == PRESSED) {
 					if (++debounce >= DEBOUNCE_CYCLES) {
 						debounce = 0;
 						TRISIO = CONTROLLER_BUTTONS;
@@ -148,7 +148,7 @@ void interrupt isr(void)
 				break;
 			case WAIT:
 				sGPIO.reg = GPIO; // Read state of inputs.
-				if (sGPIO.bits.GP3 == 0) { // Pressed
+				if (sGPIO.bits.GP3 == PRESSED) {
 					// Check every button for a press. If anything has been
 					// pressed, record it and jump to the recording state.
 					// Otherwise, do nothing.
@@ -170,7 +170,7 @@ void interrupt isr(void)
 			case RECORDING:
 				// If we are still holding 'record'
 				sGPIO.reg = GPIO; // Read state of inputs.
-				if (sGPIO.bits.GP3 == 0) {
+				if (sGPIO.bits.GP3 == PRESSED) {
 					if (++debounce == RECORD_INTERVAL) {
 						debounce = 0;
 						recording[index++] = sGPIO.reg;
