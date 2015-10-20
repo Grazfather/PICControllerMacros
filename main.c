@@ -118,7 +118,6 @@ int main() {
 			default:
 				break;
 		}
-                // RMW bug ?
 		GPIO = sGPIO.reg;
 	}
 
@@ -130,11 +129,11 @@ void interrupt isr(void)
 	static unsigned char debounce = 0;
 
 	if (INTCONbits.TMR0IF) { // Timer0 overflow
-		sGPIO.reg = GPIO; // Read state of inputs.
 		switch(state) {
 			case IDLE:
 				break;
 			case DEBOUNCE:
+				sGPIO.reg = GPIO; // Read state of inputs.
 				if (sGPIO.bits.GP3 == 0) { // Pressed
 					if (++debounce >= DEBOUNCE_CYCLES) {
 						debounce = 0;
@@ -148,6 +147,7 @@ void interrupt isr(void)
 				}
 				break;
 			case WAIT:
+				sGPIO.reg = GPIO; // Read state of inputs.
 				if (sGPIO.bits.GP3 == 0) { // Pressed
 					// Check every button for a press. If anything has been
 					// pressed, record it and jump to the recording state.
@@ -169,6 +169,7 @@ void interrupt isr(void)
 				break;
 			case RECORDING:
 				// If we are still holding 'record'
+				sGPIO.reg = GPIO; // Read state of inputs.
 				if (sGPIO.bits.GP3 == 0) {
 					if (++debounce == RECORD_INTERVAL) {
 						debounce = 0;
