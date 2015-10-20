@@ -26,7 +26,7 @@
 #define PRESSED 0
 #define PRESSED_MASK ((unsigned char)0 - PRESSED)
 
-#define CONTROLLER_BUTTONS 0b00100000
+#define CONTROLLER_BUTTONS 0b00110100
 
 typedef enum {
 	IDLE,
@@ -37,7 +37,7 @@ typedef enum {
 	PLAYBACK,
 } state_t;
 
-typedef union{
+typedef union {
 	unsigned char reg;
 	GPIObits_t bits;
 } shadowGPIO_t;
@@ -53,7 +53,7 @@ volatile shadowGPIO_t sGPIO;
  *	4MHz/4 clocks/tick = 1MHz increments
  *	1000000 ticks/second / 256 ticks/interrupt= 3906.25 interrupts/second.
  *	Prescale down to 1/4 -> 976.56 interrupts/second
- *	If debounce in 20ms ~= 20 interrupts
+ *	If debounce is 20ms ~= 20 interrupts
  *	GIE set to enable interrupts
  *	T0IE flag set to enable
  *	T0IF flag must be cleared.
@@ -90,39 +90,35 @@ int main() {
 		// TODO: Add DEBUG macros
 		switch (state) {
 			case IDLE:
-				sGPIO.bits.GP0 = 0;
-				sGPIO.bits.GP1 = 0;
-				sGPIO.bits.GP2 = 0;
-				sGPIO.bits.GP4 = 0;
+				sGPIO.bits.GP0 = 1;
+				sGPIO.bits.GP1 = 1;
+                                //sGPIO.bits.GP2 = 1;
 				break;
 			case DEBOUNCE:
-				sGPIO.bits.GP0 = 1;
+				sGPIO.bits.GP0 = 0;
 				sGPIO.bits.GP1 = 0;
-				sGPIO.bits.GP2 = 0;
-				sGPIO.bits.GP4 = 0;
+				//sGPIO.bits.GP2 = 1;
 				break;
 			case WAIT:
 				sGPIO.bits.GP0 = 0;
-				sGPIO.bits.GP1 = 1;
-				sGPIO.bits.GP2 = 0;
-				sGPIO.bits.GP4 = 0;
+				sGPIO.bits.GP1 = 0;
+                                //sGPIO.bits.GP2 = 0;
 				break;
 			case RECORDING:
 				sGPIO.bits.GP0 = 0;
-				sGPIO.bits.GP1 = 0;
-				sGPIO.bits.GP2 = 1;
-				sGPIO.bits.GP4 = 0;
+				sGPIO.bits.GP1 = 1;
+				//sGPIO.bits.GP2 = 1;
 				break;
 			case PLAYBACK:
-				sGPIO.bits.GP0 = 0;
-				sGPIO.bits.GP1 = 0;
-				sGPIO.bits.GP2 = 0;
-				sGPIO.bits.GP4 = 1;
+				sGPIO.bits.GP0 = 1;
+                                sGPIO.bits.GP1 = 1;
+				//sGPIO.bits.GP2 = 1;
 				break;
 			case SAVING: // Unused
 			default:
 				break;
 		}
+                // RMW bug ?
 		GPIO = sGPIO.reg;
 	}
 
