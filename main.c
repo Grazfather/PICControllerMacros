@@ -81,7 +81,8 @@ int main() {
 	CMCON0 = 0b111; // Clear the comparator for GP1 to work
 
 	// Enable interrupts
-	ei();
+	INTCONbits.GPIE = 1;
+	INTCONbits.GIE = 1;
 	TRISIO = CONTROLLER_BUTTONS; // Spare GPIOs for debugging
 	while(1)
 	{
@@ -94,6 +95,7 @@ int main() {
 				//sGPIO.bits.GP0 = PRESSED;
 				//sGPIO.bits.GP1 = !PRESSED;
 				//sGPIO.bits.GP2 = PRESSED;
+				SLEEP();
 				break;
 			//case DEBOUNCE:
 				//sGPIO.bits.GP0 = PRESSED;
@@ -137,12 +139,10 @@ void interrupt isr(void)
 				sGPIO.reg = GPIO; // Read state of inputs.
 				if (sGPIO.bits.GP3 == PRESSED) {
 					if (++debounce >= DEBOUNCE_CYCLES) {
-						debounce = 0;
 						TRISIO = CONTROLLER_BUTTONS;
 						state = WAIT;
 					}
 				} else {
-					debounce = 0;
 					TRISIO = CONTROLLER_BUTTONS;
 					state = IDLE;
 				}
@@ -214,6 +214,9 @@ void interrupt isr(void)
 			default:
 				break;
 		}
+
+	// Clear interrupt flags
+	INTCONbits.TMR0IF = 0;
 	}
 
 	if (INTCONbits.GPIF) {
@@ -223,11 +226,8 @@ void interrupt isr(void)
 			state = DEBOUNCE;
 			debounce = 0;
 		}
-	}
-
-	// Clear interrupt flags
-	INTCONbits.TMR0IF = 0;
 	INTCONbits.GPIF = 0;
+	}
 
 	return;
 }
