@@ -25,8 +25,8 @@
 // Will we read high or low when a button is pressed?
 #define PRESSED 0
 #define PRESSED_MASK ((unsigned char)0 - PRESSED)
-
-#define CONTROLLER_BUTTONS 0b00110110
+//                           xx54_210
+#define CONTROLLER_BUTTONS 0b00110111
 
 typedef enum {
 	IDLE,
@@ -91,30 +91,30 @@ int main() {
 		// TODO: Add DEBUG macros
 		switch (state) {
 			case IDLE:
-				sGPIO.bits.GP0 = 1;
-				//sGPIO.bits.GP1 = 1;
-				//sGPIO.bits.GP2 = 1;
+				//sGPIO.bits.GP0 = PRESSED;
+				//sGPIO.bits.GP1 = !PRESSED;
+				//sGPIO.bits.GP2 = PRESSED;
 				break;
-			case DEBOUNCE:
-				sGPIO.bits.GP0 = 0;
-				//sGPIO.bits.GP1 = 0;
-				//sGPIO.bits.GP2 = 1;
-				break;
-			case WAIT:
-				sGPIO.bits.GP0 = 0;
-				//sGPIO.bits.GP1 = 0;
-				//sGPIO.bits.GP2 = 0;
-				break;
-			case RECORDING:
-				sGPIO.bits.GP0 = 0;
-				//sGPIO.bits.GP1 = 1;
-				//sGPIO.bits.GP2 = 1;
-				break;
-			case PLAYBACK:
-				sGPIO.bits.GP0 = 1;
-				//sGPIO.bits.GP1 = 1;
-				//sGPIO.bits.GP2 = 1;
-				break;
+			//case DEBOUNCE:
+				//sGPIO.bits.GP0 = PRESSED;
+				//sGPIO.bits.GP1 = !PRESSED;
+				//sGPIO.bits.GP2 = !PRESSED;
+				//break;
+			//case WAIT:
+				//sGPIO.bits.GP0 = !PRESSED;
+				//sGPIO.bits.GP1 = PRESSED;
+				//sGPIO.bits.GP2 = !PRESSED;
+				//break;
+			//case RECORDING:
+				//sGPIO.bits.GP0 = !PRESSED;
+				//sGPIO.bits.GP1 = !PRESSED;
+				//sGPIO.bits.GP2 = PRESSED;
+				//break;
+			//case PLAYBACK:
+				//sGPIO.bits.GP0 = PRESSED;
+				//sGPIO.bits.GP1 = PRESSED;
+				//sGPIO.bits.GP2 = PRESSED;
+				//break;
 			case SAVING: // Unused
 			default:
 				break;
